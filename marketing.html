@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OfflineAICalculator — the calculator that understands plain English</title>
+<meta name="description" content="A private, offline calculator that understands plain English: live answers, exact fractions, step-by-step working, scientific keys, 15 tools and on-device AI for word problems. No account, no internet.">
+<style>
+  :root { --bg:#1E1511; --surface:#2E221B; --line:#4A3A2E; --ink:#F2E8DA; --ink-2:#D6C6B2; --ink-3:#A8927C;
+          --gold:linear-gradient(135deg,#fff0b8 0%,#d4af37 30%,#f5dc86 55%,#b08a26 80%,#e3c35a 100%);
+          --backdrop:linear-gradient(135deg,#2A1E18 0%,#1B130F 40%,#231914 65%,#16100C 100%);
+          --card:linear-gradient(135deg,#3A2B22 0%,#2E221B 50%,#271C16 100%); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); background-image:var(--backdrop); background-attachment:fixed; color:var(--ink);
+         font:16px/1.7 -apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Roboto,sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:760px; margin:0 auto; padding:64px 20px 96px; }
+  .mark { width:64px; height:64px; display:block; margin:0 0 22px; border-radius:50%; }
+  h1 { font-size:clamp(30px,6vw,46px); margin:0 0 8px; letter-spacing:-0.02em; font-weight:700; line-height:1.15;
+       background:var(--gold); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lede { font-size:19px; color:var(--ink-2); margin:0 0 36px; }
+  .updated { color:var(--ink-3); font-size:14px; margin:0 0 36px; }
+  h2 { font-size:20px; margin:44px 0 12px; font-weight:600; color:#e6c65c; }
+  p, li { color:var(--ink-2); }
+  strong { color:var(--ink); font-weight:600; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:22px 24px; margin:24px 0; }
+  .panel p:first-child, .panel h3:first-child { margin-top:0; } .panel p:last-child { margin-bottom:0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:24px 0; }
+  .grid .panel { margin:0; }
+  h3 { margin:0 0 6px; font-size:17px; color:#e6c65c; }
+  ul { padding-left:20px; }
+  table { width:100%; border-collapse:collapse; margin:16px 0; font-size:15px; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); color:var(--ink-2); vertical-align:top; }
+  th { color:var(--ink); font-weight:600; }
+  a { color:#e6c65c; }
+  pre { white-space:pre-wrap; font-size:12px; color:var(--ink-3); background:rgba(0,0,0,.18); padding:16px; border-radius:12px; overflow-x:auto; }
+  footer { border-top:1px solid var(--line); margin-top:56px; padding-top:24px; color:var(--ink-3); font-size:14px; }
+
+  .tag { display:inline-block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin:0 0 6px; }
+  .strip { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 36px; padding:0; list-style:none; }
+  .strip li { margin:0; padding:6px 12px; border:1px solid var(--line); border-radius:999px; font-size:14px; color:var(--ink-2); background:rgba(0,0,0,.12); }
+  .example { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; color:var(--ink); }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em; color:var(--ink); }
+  .toc { color:var(--ink-3); font-size:14px; margin:0 0 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <clipPath id="disc"><circle cx="50" cy="50" r="50"/></clipPath>
+    <linearGradient id="cream" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FAF3E6"/><stop offset="1" stop-color="#D9C6A6"/></linearGradient>
+    <linearGradient id="espresso" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5A4030"/><stop offset="1" stop-color="#1B120E"/></linearGradient>
+    <linearGradient id="goldleaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0b8"/><stop offset=".35" stop-color="#d4af37"/>
+      <stop offset=".6" stop-color="#f6de8a"/><stop offset="1" stop-color="#a9821f"/></linearGradient>
+  </defs>
+  <g clip-path="url(#disc)">
+    <rect x="0" y="0" width="50" height="100" fill="url(#cream)"/>
+    <rect x="50" y="0" width="50" height="100" fill="url(#espresso)"/>
+  </g>
+  <rect x="28" y="22" width="38" height="58" rx="6" fill="none" stroke="url(#goldleaf)" stroke-width="4.5"/>
+  <rect x="34" y="29" width="26" height="9" rx="2" fill="url(#goldleaf)"/>
+  <g stroke="url(#goldleaf)" stroke-width="3.5" stroke-linecap="round">
+    <line x1="34.5" y1="51" x2="42.5" y2="51"/><line x1="38.5" y1="47" x2="38.5" y2="55"/>
+    <line x1="51.5" y1="51" x2="59.5" y2="51"/>
+    <line x1="35.5" y1="64" x2="41.5" y2="70"/><line x1="41.5" y1="64" x2="35.5" y2="70"/>
+    <line x1="51.5" y1="64.5" x2="59.5" y2="64.5"/><line x1="51.5" y1="69.5" x2="59.5" y2="69.5"/>
+  </g>
+  <path d="M78 9 Q80.2 14.8 86 17 Q80.2 19.2 78 25 Q75.8 19.2 70 17 Q75.8 14.8 78 9 Z" fill="url(#goldleaf)"/>
+</svg>
+
+<h1>OfflineAICalculator</h1>
+<p class="lede">The calculator that understands plain English — private, precise, and completely offline. Nothing you type ever leaves your iPhone or iPad.</p>
+<ul class="strip">
+  <li>No account</li><li>No subscription</li><li>No internet needed</li><li>No tracking</li><li>iPhone &amp; iPad</li>
+</ul>
+
+<div class="grid">
+  <div class="panel"><h3>Answers as you type</h3><p>The result appears live while you type, with the right order of operations. Percentages work the way people expect — <code>200 + 10%</code> is 220 — and there is no rounding noise: <code>0.1 + 0.2</code> is 0.3.</p></div>
+  <div class="panel"><h3>Exact, and it shows its working</h3><p>Fractions stay exact — <code>1/3 + 1/6</code> is ½. Tap Steps on any answer to see every operation, one line at a time.</p></div>
+  <div class="panel"><h3>Scientific when you need it</h3><p>Trig, inverse and hyperbolic functions in degrees or radians, logs, powers and roots, factorials, nCr and nPr, π, e and EE — over 40 functions, with memory, Ans, and undo and redo for what you type.</p></div>
+  <div class="panel"><h3>Ask in plain English</h3><p>“18% tip on $64 split 3 ways”, “mortgage payment on 250000 at 5.5% for 25 years”, “days until christmas”, “solve x² − 5x + 6 = 0”. The calculator reads these itself and answers exactly.</p></div>
+  <div class="panel"><h3>Word problems, understood</h3><p>“I bought 4 notebooks at 3.75 each and paid with 20 — how much change?” An AI on your device turns the words into a sum; the calculator checks it and works it out. You always see how your question was read.</p></div>
+  <div class="panel"><h3>15 tools in one</h3><p>Units (90+), percentages, tip &amp; split, discount &amp; tax, loans and mortgages, savings growth, statistics, an equation solver, a graph plotter, a programmer’s calculator, dates, fractions, primes, best buy, and memory &amp; variables.</p></div>
+</div>
+
+<h2>Honest about AI</h2>
+<p>The AI never does the arithmetic. It only rewrites your words as a sum. The calculator then checks that every number came from your question, compares more than one reading, and works out the answer itself — showing “Understood as …” above it, with a clear note whenever anything is uncertain. Explanations of maths ideas are clearly marked, and any sum inside them is checked and corrected.</p>
+
+<h2>A history you can trust</h2>
+<p>Every answer is kept, grouped by day, searchable, with pins and your own labels. Delete one, several, or everything — and undo it if you change your mind. Export to text or a spreadsheet whenever you like.</p>
+
+<h2>Built for every screen</h2>
+<div class="grid">
+  <div class="panel"><h3>iPhone</h3><p>Big, comfortable keys and a clean display. On compact iPhones the scientific keys fold into two swipeable pages, so every key stays easy to hit.</p></div>
+  <div class="panel"><h3>iPad</h3><p>A navigation rail down the side, a paper-tape of recent sums in portrait, and your full history beside the keys in landscape. Every screen uses the room.</p></div>
+</div>
+
+<h2>Handles the big numbers</h2>
+<p>170! is 7.2574156153E306, and the calculator says so. Try something even larger and it tells you plainly that the answer is too large to show, instead of hanging or printing gibberish.</p>
+
+<h2>Two finishes</h2>
+<p><strong>Espresso</strong> — satin espresso brown with gold highlights and cream text. <strong>Cream</strong> — warm satin cream with gold and espresso accents.</p>
+
+<h2>Private by design</h2>
+<p>The AI is built into the app and runs on your device. There is no download, no account, no analytics and no network connection of any kind — it works in flight mode, underground, anywhere. Your history, settings, memory and variables stay on your device, and deleting the app deletes them.</p>
+
+<h2>Free</h2>
+<p>No in-app purchases, no ads, no subscription. For iPhone and iPad with iOS 17 or later.</p>
+
+<footer>OfflineAICalculator · Contact: <a href="mailto:sivavimelrajhen@gmail.com">sivavimelrajhen@gmail.com</a></footer>
+</div>
+</body>
+</html>
